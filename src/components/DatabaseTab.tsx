@@ -4,70 +4,62 @@ import { Key, Copy, Check } from 'lucide-react';
 
 function generateSQL(tables: SystemArchitecture['database']['tables']): string {
   return tables.map(table => {
-    const fields = table.fields.map(f => {
-      const constraints = f.constraints ? ` ${f.constraints}` : '';
-      return `  ${f.name} ${f.type}${constraints}`;
-    }).join(',\n');
-    return `CREATE TABLE ${table.name} (\n${fields}\n);`;
-  }).join('\n\n');
+    const fields = table.fields.map(f => `  ${f.name} ${f.type}${f.constraints ? ' ' + f.constraints : ''}`).join(',\n');
+    return `CREATE TABLE ${table.name} (\n${fields}\n);\n`;
+  }).join('\n');
 }
 
 export const DatabaseTab: React.FC<{ data: SystemArchitecture }> = ({ data }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopySQL = () => {
-    const sql = generateSQL(data.database.tables);
-    navigator.clipboard.writeText(sql);
+    navigator.clipboard.writeText(generateSQL(data.database.tables));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="w-full max-w-5xl flex flex-col gap-4 animate-[fadeIn_0.3s_ease]">
-      {/* Header row */}
-      <div className="flex items-center justify-between py-2">
-        <span className="text-[#525252] text-xs font-mono uppercase tracking-wider">
+    <div style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 16, animation: 'fadeIn 0.3s ease' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 8 }}>
+        <span style={{ color: 'var(--text-3)', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           {data.database.tables.length} Tables
         </span>
         <button
           onClick={handleCopySQL}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs font-mono rounded border border-[#2A2A2A] bg-[#1A1A1A] text-[#A3A3A3] hover:text-[#F5F5F5] hover:border-[#F59E0B] transition-colors"
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--surface)', color: copied ? 'var(--success)' : 'var(--text-2)', cursor: 'pointer' }}
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-[#10B981]" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? <Check size={13} /> : <Copy size={13} />}
           {copied ? 'Copied!' : 'Copy SQL'}
         </button>
       </div>
 
-      {/* 2-column grid of table cards */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* 2-column grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {data.database.tables.map(table => (
-          <div key={table.name} className="border border-[#2A2A2A] bg-[#141414] rounded-md overflow-hidden flex flex-col">
-            {/* Table name header */}
-            <div className="px-4 py-3 border-b border-[#2A2A2A]">
-              <span className="font-mono text-[#F59E0B] font-medium text-sm">{table.name}</span>
+          <div key={table.name} style={{ border: '1px solid var(--border)', backgroundColor: 'var(--surface)', borderRadius: 6, overflow: 'hidden' }}>
+            {/* Table header */}
+            <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border)' }}>
+              <span style={{ fontFamily: 'JetBrains Mono, monospace', color: 'var(--primary)', fontSize: 13, fontWeight: 500 }}>{table.name}</span>
             </div>
 
             {/* Fields */}
-            <div className="divide-y divide-[#2A2A2A]">
-              {table.fields.map(field => (
-                <div key={field.name} className="grid grid-cols-3 px-4 py-2.5 text-xs hover:bg-[#1A1A1A] transition-colors">
-                  <div className="flex items-center gap-1.5 text-[#F5F5F5] font-mono">
-                    {(field.constraints.toLowerCase().includes('primary') || field.name === 'id') && (
-                      <Key className="w-3 h-3 text-[#F59E0B] shrink-0" />
-                    )}
-                    {field.name}
-                  </div>
-                  <div className="text-[#F59E0B] font-mono">{field.type}</div>
-                  <div className="text-[#525252]">{field.constraints}</div>
+            {table.fields.map((field, i) => (
+              <div key={field.name} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', padding: '8px 16px', borderBottom: i < table.fields.length - 1 ? '1px solid var(--border)' : undefined, fontSize: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-1)', fontFamily: 'JetBrains Mono, monospace' }}>
+                  {(field.constraints.toLowerCase().includes('primary') || field.name === 'id') && <Key size={10} color="var(--primary)" />}
+                  {field.name}
                 </div>
-              ))}
-            </div>
+                <div style={{ color: 'var(--primary)', fontFamily: 'JetBrains Mono, monospace' }}>{field.type}</div>
+                <div style={{ color: 'var(--text-3)' }}>{field.constraints}</div>
+              </div>
+            ))}
 
             {/* Relationships */}
-            {table.relationships && table.relationships.length > 0 && (
-              <div className="px-4 py-3 border-t border-[#2A2A2A] bg-[#0D0D0D] flex flex-col gap-1">
+            {table.relationships?.length > 0 && (
+              <div style={{ padding: '8px 16px', backgroundColor: 'var(--surface-alt)', borderTop: '1px solid var(--border)' }}>
                 {table.relationships.map((rel, i) => (
-                  <span key={i} className="text-xs text-[#525252] font-mono">→ {rel}</span>
+                  <div key={i} style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace' }}>→ {rel}</div>
                 ))}
               </div>
             )}

@@ -2,94 +2,69 @@ import React from 'react';
 import { SystemArchitecture } from '../types';
 
 export const SprintsTab: React.FC<{ data: SystemArchitecture }> = ({ data }) => {
-  const totalPoints = data.sprints.reduce((acc, sprint) =>
-    acc + sprint.tasks.reduce((sum, task) => sum + task.points, 0), 0
-  );
+  const totalPoints = data.sprints.reduce((acc, s) => acc + s.tasks.reduce((sum, t) => sum + t.points, 0), 0);
+  const avgPoints = totalPoints / Math.max(data.sprints.length, 1);
 
   return (
-    <div className="w-full max-w-4xl flex flex-col gap-8 animate-[fadeIn_0.3s_ease]">
-      <div className="flex justify-between items-center">
+    <div style={{ width: '100%', maxWidth: 800, display: 'flex', flexDirection: 'column', gap: 24, animation: 'fadeIn 0.3s ease' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 className="text-lg font-medium text-[#F5F5F5]">Sprint Plan</h2>
-          <p className="text-xs text-[#525252] font-mono mt-1">{data.sprints.length} sprints · {totalPoints} total story points</p>
+          <h2 style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-1)', margin: 0 }}>Sprint Plan</h2>
+          <p style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace', marginTop: 4 }}>{data.sprints.length} sprints · {totalPoints} total story points</p>
         </div>
       </div>
 
       {data.sprints.map(sprint => {
         const sprintPoints = sprint.tasks.reduce((sum, task) => sum + task.points, 0);
+        const pct = Math.min(100, (sprintPoints / avgPoints) * 100);
 
         return (
-          <div key={sprint.number} className="border border-[#2A2A2A] bg-[#141414] rounded-md overflow-hidden">
+          <div key={sprint.number} style={{ border: '1px solid var(--border)', backgroundColor: 'var(--surface)', borderRadius: 6, overflow: 'hidden' }}>
             {/* Sprint header */}
-            <div className="px-5 py-4 border-b border-[#2A2A2A] flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="bg-[#1A1A1A] text-[#F59E0B] font-mono text-xs px-2 py-1 rounded border border-[#2A2A2A]">
-                  Sprint {sprint.number}
-                </span>
-                <h3 className="font-medium text-[#F5F5F5] text-sm">{sprint.name}</h3>
+            <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--primary)', padding: '2px 8px', border: '1px solid var(--border)', borderRadius: 3, backgroundColor: 'var(--surface-alt)' }}>Sprint {sprint.number}</span>
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-1)', margin: 0 }}>{sprint.name}</h3>
               </div>
-              <div className="flex items-center gap-4 text-xs text-[#525252] font-mono">
+              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace' }}>
                 <span>{sprint.duration}</span>
-                <span>{sprintPoints} pts</span>
+                <span style={{ color: 'var(--primary)' }}>{sprintPoints} pts</span>
               </div>
             </div>
 
             {/* Progress bar */}
-            <div className="h-1 bg-[#1A1A1A]">
-              <div
-                className="h-full bg-[#F59E0B] transition-all"
-                style={{ width: `${Math.min(100, (sprintPoints / Math.max(totalPoints / data.sprints.length, 1)) * 100)}%`, opacity: 0.6 }}
-              />
+            <div style={{ height: 2, backgroundColor: 'var(--border)' }}>
+              <div style={{ height: '100%', backgroundColor: 'var(--primary)', width: `${pct}%`, opacity: 0.7, transition: 'width 0.5s ease' }} />
             </div>
 
             {/* Goals */}
-            {sprint.goals && sprint.goals.length > 0 && (
-              <div className="px-5 py-3 border-b border-[#2A2A2A] flex flex-wrap gap-2">
+            {sprint.goals?.length > 0 && (
+              <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--border)', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {sprint.goals.map((goal, i) => (
-                  <span key={i} className="text-xs text-[#525252] bg-[#1A1A1A] px-2 py-1 rounded border border-[#2A2A2A]">
-                    {goal}
-                  </span>
+                  <span key={i} style={{ fontSize: 11, color: 'var(--text-3)', backgroundColor: 'var(--surface-alt)', padding: '3px 10px', borderRadius: 3, border: '1px solid var(--border)' }}>{goal}</span>
                 ))}
               </div>
             )}
 
             {/* Tasks */}
-            <div className="divide-y divide-[#2A2A2A]">
-              {sprint.tasks.map((task, i) => (
-                <div key={i} className="px-5 py-3 flex items-center justify-between hover:bg-[#1A1A1A] transition-colors">
-                  <div className="flex items-center gap-3">
-                    <PriorityDot priority={task.priority} />
-                    <span className="text-sm text-[#A3A3A3]">{task.task}</span>
-                  </div>
-                  <span className="font-mono text-xs text-[#525252] bg-[#0D0D0D] px-2 py-1 rounded border border-[#2A2A2A] shrink-0 ml-4">
-                    {task.points} pts
-                  </span>
+            {sprint.tasks.map((task, i) => (
+              <div key={i} style={{ padding: '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: i < sprint.tasks.length - 1 ? '1px solid var(--border)' : undefined }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, backgroundColor: task.priority === 'High' ? 'var(--error)' : task.priority === 'Medium' ? 'var(--primary)' : 'var(--text-3)' }} />
+                  <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{task.task}</span>
                 </div>
-              ))}
-            </div>
+                <span style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-3)', padding: '2px 8px', border: '1px solid var(--border)', borderRadius: 3, backgroundColor: 'var(--surface-alt)', flexShrink: 0, marginLeft: 12 }}>{task.points} pts</span>
+              </div>
+            ))}
           </div>
         );
       })}
 
-      <div className="border-t border-[#2A2A2A] pt-4 flex justify-between items-center">
-        <span className="text-xs text-[#525252] font-mono uppercase">Total Project Story Points</span>
-        <span className="font-mono text-[#F59E0B] font-bold text-lg">{totalPoints}</span>
+      {/* Total */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase' }}>Total Project Story Points</span>
+        <span style={{ fontFamily: 'JetBrains Mono, monospace', color: 'var(--primary)', fontWeight: 700, fontSize: 20 }}>{totalPoints}</span>
       </div>
     </div>
-  );
-};
-
-const PriorityDot: React.FC<{ priority: string }> = ({ priority }) => {
-  const colors: Record<string, string> = {
-    High: '#EF4444',
-    Medium: '#F59E0B',
-    Low: '#525252'
-  };
-  return (
-    <div
-      className="w-2 h-2 rounded-full shrink-0"
-      style={{ backgroundColor: colors[priority] || '#525252' }}
-      title={`Priority: ${priority}`}
-    />
   );
 };

@@ -2,7 +2,6 @@ import React from 'react';
 import { SystemArchitecture } from '../types';
 import { Activity, Users, Clock } from 'lucide-react';
 
-// Lookup table for common tech descriptions
 const TECH_DESCRIPTIONS: Record<string, string> = {
   'React': 'Component-based UI library for building interactive interfaces with a large ecosystem.',
   'Next.js': 'Provides SSR, SSG, and API routes, crucial for SEO and performance.',
@@ -21,7 +20,6 @@ const TECH_DESCRIPTIONS: Record<string, string> = {
   'AWS': 'Comprehensive cloud platform with 200+ services for any workload.',
   'Stripe API': 'PCI-compliant payment processing platform with webhooks and strong security.',
   'GraphQL': 'Query language for APIs enabling clients to request exactly needed data.',
-  'WebSocket': 'Protocol for full-duplex communication channels over a single TCP connection.',
   'Tailwind CSS': 'Utility-first CSS framework for rapid UI development.',
   'Prisma': 'Next-generation ORM for Node.js and TypeScript with type-safe queries.',
 };
@@ -33,73 +31,78 @@ function getTechDescription(tech: string): string {
   return TECH_DESCRIPTIONS[key || ''] || `Core technology component for the ${tech} stack layer.`;
 }
 
+const s = {
+  card: { backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '16px' },
+  label: { color: 'var(--text-3)', fontSize: 11, fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase' as const, letterSpacing: '0.08em' },
+  text1: { color: 'var(--text-1)' },
+  text2: { color: 'var(--text-2)' },
+  text3: { color: 'var(--text-3)' },
+};
+
 export const OverviewTab: React.FC<{ data: SystemArchitecture }> = ({ data }) => {
   const { overview } = data;
 
   const complexityConfig = {
-    Low: { badge: 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30', desc: 'The project has straightforward requirements with minimal integrations and a simple data model.' },
-    Medium: { badge: 'bg-[#F59E0B]/15 text-[#F59E0B] border-[#F59E0B]/30', desc: 'The project has moderate complexity with several integrations and a structured data model.' },
-    High: { badge: 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]/30', desc: 'The project involves multiple user roles, complex integrations, and stringent non-functional requirements.' },
-  }[overview.complexity] || { badge: '', desc: '' };
+    Low:    { color: 'var(--success)', bgOpacity: '20',  desc: 'The project has straightforward requirements with minimal integrations and a simple data model.' },
+    Medium: { color: 'var(--primary)', bgOpacity: '20',  desc: 'The project has moderate complexity with several integrations and a structured data model.' },
+    High:   { color: 'var(--error)',   bgOpacity: '20',  desc: 'The project involves multiple user roles, complex integrations, and stringent non-functional requirements.' },
+  }[overview.complexity] || { color: 'var(--text-3)', bgOpacity: '10', desc: '' };
 
   return (
-    <div className="w-full max-w-5xl flex flex-col gap-8 animate-[fadeIn_0.3s_ease]">
-      {/* Title + Summary */}
+    <div style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 28, animation: 'fadeIn 0.3s ease' }}>
+      {/* Title */}
       <div>
-        <h1 className="text-3xl font-semibold text-[#F5F5F5] tracking-tight mb-2">{overview.projectName}</h1>
-        <p className="text-[#A3A3A3] text-sm leading-relaxed max-w-3xl">{overview.summary}</p>
+        <h1 style={{ fontSize: 28, fontWeight: 600, color: 'var(--text-1)', letterSpacing: '-0.02em', marginBottom: 8 }}>{overview.projectName}</h1>
+        <p style={{ color: 'var(--text-2)', fontSize: 14, lineHeight: 1.7, maxWidth: 680 }}>{overview.summary}</p>
       </div>
 
       {/* 3 Metric Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
         {/* Complexity */}
-        <div className="border border-[#2A2A2A] bg-[#141414] rounded-md p-4 flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-[#525252] text-xs font-mono uppercase tracking-wider">
-            <Activity className="w-3.5 h-3.5" />
-            Complexity
+        <div style={s.card}>
+          <div style={{ ...s.label, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <Activity size={12} /> Complexity
           </div>
-          <span className={`text-sm font-semibold px-2.5 py-1 rounded border w-fit ${complexityConfig.badge}`}>
+          <div style={{ display: 'inline-block', padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, border: `1px solid ${complexityConfig.color}`, color: complexityConfig.color, backgroundColor: `color-mix(in srgb, ${complexityConfig.color} 12%, transparent)`, marginBottom: 10 }}>
             {overview.complexity}
-          </span>
-          <p className="text-xs text-[#525252] leading-relaxed">{complexityConfig.desc}</p>
+          </div>
+          <p style={{ ...s.text3, fontSize: 12, lineHeight: 1.6 }}>{complexityConfig.desc}</p>
         </div>
 
         {/* Team */}
-        <div className="border border-[#2A2A2A] bg-[#141414] rounded-md p-4 flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-[#525252] text-xs font-mono uppercase tracking-wider">
-            <Users className="w-3.5 h-3.5" />
-            Team
+        <div style={s.card}>
+          <div style={{ ...s.label, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <Users size={12} /> Team
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-semibold text-[#F5F5F5]">{overview.estimatedTeamSize}</span>
-            <span className="text-[#A3A3A3] text-sm">engineers</span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <span style={{ fontSize: 36, fontWeight: 700, color: 'var(--text-1)', lineHeight: 1 }}>{overview.estimatedTeamSize}</span>
+            <span style={{ ...s.text2, fontSize: 14 }}>engineers</span>
           </div>
         </div>
 
         {/* Timeline */}
-        <div className="border border-[#2A2A2A] bg-[#141414] rounded-md p-4 flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-[#525252] text-xs font-mono uppercase tracking-wider">
-            <Clock className="w-3.5 h-3.5" />
-            Timeline
+        <div style={s.card}>
+          <div style={{ ...s.label, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <Clock size={12} /> Timeline
           </div>
-          <span className="text-2xl font-semibold text-[#F5F5F5]">{overview.estimatedTimeline}</span>
+          <span style={{ fontSize: 22, fontWeight: 600, color: 'var(--text-1)' }}>{overview.estimatedTimeline}</span>
         </div>
       </div>
 
       {/* Executive Summary */}
-      <div className="border border-[#2A2A2A] bg-[#141414] rounded-md p-5 border-l-4 border-l-[#F59E0B]">
-        <div className="text-[#525252] text-xs font-mono uppercase tracking-wider mb-3">Executive Summary</div>
-        <p className="text-[#A3A3A3] text-sm leading-relaxed">{overview.summary}</p>
+      <div style={{ ...s.card, borderLeft: '4px solid var(--primary)' }}>
+        <div style={{ ...s.label, marginBottom: 10 }}>Executive Summary</div>
+        <p style={{ ...s.text2, fontSize: 14, lineHeight: 1.7 }}>{overview.summary}</p>
       </div>
 
       {/* Tech Stack */}
       <div>
-        <div className="text-[#525252] text-xs font-mono uppercase tracking-wider mb-4">Tech Stack</div>
-        <div className="grid grid-cols-2 gap-3">
+        <div style={{ ...s.label, marginBottom: 16 }}>Tech Stack</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {overview.techStack.map(tech => (
-            <div key={tech} className="border border-[#2A2A2A] bg-[#141414] rounded p-3 flex flex-col gap-1.5">
-              <span className="text-[#F59E0B] text-sm font-medium font-mono">{tech}</span>
-              <p className="text-[#525252] text-xs leading-relaxed">{getTechDescription(tech)}</p>
+            <div key={tech} style={s.card}>
+              <div style={{ color: 'var(--primary)', fontSize: 14, fontWeight: 500, fontFamily: 'JetBrains Mono, monospace', marginBottom: 6 }}>{tech}</div>
+              <p style={{ ...s.text3, fontSize: 12, lineHeight: 1.6 }}>{getTechDescription(tech)}</p>
             </div>
           ))}
         </div>

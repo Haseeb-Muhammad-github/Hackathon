@@ -1,4 +1,4 @@
-# Logs
+# ── Logs ──────────────────────────────────────
 logs
 *.log
 npm-debug.log*
@@ -7,19 +7,52 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# ── Frontend ───────────────────────────────────
 node_modules
 dist
 dist-ssr
-.env
 *.local
+
+# ── Environment files (NEVER commit secrets) ───
 .env
-# Editor directories and files
+.env.*
+!.env.example
+
+# ── Python / Backend ───────────────────────────
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.Python
+backend/*.egg-info/
+backend/dist/
+backend/build/
+**/__pycache__/
+**/*.py[cod]
+*$py.class
+*.so
+
+# ── Python virtual envs ────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# ── Editor directories and files ───────────────
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
+
+# ── OS generated ───────────────────────────────
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# ── Build artifacts ────────────────────────────
+*.tsbuildinfo
