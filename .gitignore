@@ -56,4 +56,7 @@ Thumbs.db
 
 # ── Build artifacts ────────────────────────────
 *.tsbuildinfo
+
+# ── Vercel (contains project IDs — use GitHub Secrets instead) ──
+.vercel/
 plan.md
